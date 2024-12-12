@@ -1,42 +1,8 @@
 module vga_driver_to_frame_buf	(
-    	//////////// ADC //////////
-	//output		          		ADC_CONVST,
-	//output		          		ADC_DIN,
-	//input 		          		ADC_DOUT,
-	//output		          		ADC_SCLK,
-
-	//////////// Audio //////////
-	//input 		          		AUD_ADCDAT,
-	//inout 		          		AUD_ADCLRCK,
-	//inout 		          		AUD_BCLK,
-	//output		          		AUD_DACDAT,
-	//inout 		          		AUD_DACLRCK,
-	//output		          		AUD_XCK,
-
-	//////////// CLOCK //////////
-	//input 		          		CLOCK2_50,
-	//input 		          		CLOCK3_50,
-	//input 		          		CLOCK4_50,
+    	
 	input 		          		CLOCK_50,
 
-	//////////// SDRAM //////////
-	//output		    [12:0]		DRAM_ADDR,
-	//output		     [1:0]		DRAM_BA,
-	//output		          		DRAM_CAS_N,
-	//output		          		DRAM_CKE,
-	//output		          		DRAM_CLK,
-	//output		          		DRAM_CS_N,
-	//inout 		    [15:0]		DRAM_DQ,
-	//output		          		DRAM_LDQM,
-	//output		          		DRAM_RAS_N,
-	//output		          		DRAM_UDQM,
-	//output		          		DRAM_WE_N,
-
-	//////////// I2C for Audio and Video-In //////////
-	//output		          		FPGA_I2C_SCLK,
-	//inout 		          		FPGA_I2C_SDAT,
-
-	//////////// SEG7 //////////
+	
 	output		     [6:0]		HEX0,
 	output		     [6:0]		HEX1,
 	output		     [6:0]		HEX2,
@@ -44,33 +10,16 @@ module vga_driver_to_frame_buf	(
 	//output		     [6:0]		HEX4,
 	//output		     [6:0]		HEX5,
 
-	//////////// IR //////////
-	//input 		          		IRDA_RXD,
-	//output		          		IRDA_TXD,
-
-	//////////// KEY //////////
+	
 	input 		     [3:0]		KEY,
 
-	//////////// LED //////////
+	
 	output		     [9:0]		LEDR,
 
-	//////////// PS2 //////////
-	//inout 		          		PS2_CLK,
-	//inout 		          		PS2_CLK2,
-	//inout 		          		PS2_DAT,
-	//inout 		          		PS2_DAT2,
-
-	//////////// SW //////////
+	
 	input 		     [9:0]		SW,
 
-	//////////// Video-In //////////
-	//input 		          		TD_CLK27,
-	//input 		     [7:0]		TD_DATA,
-	//input 		          		TD_HS,
-	//output		          		TD_RESET_N,
-	//input 		          		TD_VS,
-
-	//////////// VGA //////////
+	
 	output		          		VGA_BLANK_N,
 	output		     [7:0]		VGA_B,
 	output		          		VGA_CLK,
@@ -80,12 +29,7 @@ module vga_driver_to_frame_buf	(
 	output		          		VGA_SYNC_N,
 	output		          		VGA_VS
 
-	//////////// GPIO_0, GPIO_0 connect to GPIO Default //////////
-	//inout 		    [35:0]		GPIO_0,
-
-	//////////// GPIO_1, GPIO_1 connect to GPIO Default //////////
-	//inout 		    [35:0]		GPIO_1
-
+	
 );
 
 // Turn off all displays.
@@ -154,13 +98,11 @@ reg [7:0]NS;
 parameter 
 	START 			= 8'd0,
 	// W2M is write to memory
-	W2M_INIT 		= 8'd1,
-	W2M_COND 		= 8'd2,
-	W2M_INC 			= 8'd3,
-	W2M_DONE 		= 8'd4,
-	// The RFM = READ_FROM_MEMOERY reading cycles
-	RFM_INIT_START = 8'd5,
-	RFM_INIT_WAIT 	= 8'd6,
+	initlin1		= 8'd1,
+	countlin1		= 8'd2,
+	initlin2			= 8'd3,
+	countlin2 = 8'd5,
+	done 	= 8'd6,
 	RFM_DRAWING 	= 8'd7,
 	ERROR 			= 8'hFF;
 
@@ -233,5 +175,52 @@ begin
 
 	end
 end
+	always@(posedge clk or negedge rst)
+		begin
+			if(rst==1'b0)
+				S<=START;
+			else
+				S<=NS
+
+		end
+				always@(*)
+					begin
+						case(S)
+							START:NS=initlin1;
+							initlin1: NS=countlin1;
+							countlin1:if(i>=10'd10)
+								NS=initlin2;
+							else 
+								NS=countlin1;
+							initlin2:NS=countlin2
+								countlin2:if(i>=10'd11)
+									NS=done;
+							else NS=countlin2
+								
+							done:NS=done;
+						endcase
+					end
+			always@(*)
+				begin
+				case(S)
+					initlin1: the_vga_draw_frame_write_mem_address = 15'd12;
+					i=16'd0;
+					countlin1:
+						i=i+1'b1;
+					the_vga_draw_frame_write_mem_address=the_vga_draw_frame_write_mem_address+1'b1;
+					the_vga_draw_frame_write_mem_data <= {8'h00, 8'h00, 8'hff};
+			the_vga_draw_frame_write_a_pixel <= 1'b1;
+					initlin2: the_vga_draw_frame_write_mem_address = 15'd132;
+						i=16'd0;
+					countlin2:i=i+1'b1;
+					the_vga_draw_frame_write_mem_address=the_vga_draw_frame_write_mem_address+1'b1;
+					the_vga_draw_frame_write_mem_data <= {8'h00, 8'h00, 8'hff};
+			the_vga_draw_frame_write_a_pixel <= 1'b1;
+						
+
+				endcase
+				end
+			
+	
 
 endmodule
