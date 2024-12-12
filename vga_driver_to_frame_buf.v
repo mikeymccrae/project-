@@ -152,10 +152,10 @@ reg [15:0]i;
 reg [7:0]S;
 reg [7:0]NS;
 parameter 
-	START 			= 8'd0,
-	initlin1		= 8'd1,
-	countlin1		= 8'd2,
-	initlin2			= 8'd3,
+	START = 8'd0,
+	initlin1 = 8'd1,
+	countlin1 = 8'd2,
+	initlin2 = 8'd3,
 	
 	countlin2 = 8'd4,
 	done 	= 8'd5,
@@ -163,6 +163,12 @@ parameter
 	countlin3=8'd7,
 	initlin4=8'd8,
 	countlin4=8'd9,
+	initlin5=8'd10
+	countlin5=8'd11,
+	initlin6=8'd12,
+	countlin6=8'd13,
+	initlin7=8'd14,
+	countlin7=8'd15,
 
 	
 	ERROR 			= 8'hFF;
@@ -219,9 +225,27 @@ always@(*)
 							
 							initlin4:NS=countlin4;
 							countlin4:if(i>=10'd59) begin
-									NS=done;
+									NS=initlin5;
 									end
 							else NS=countlin4;
+
+							initlin5:NS=countlin5;
+							countlin5:if(i>=10'd60) begin
+									NS=initlin6;
+									end
+							else NS=countlin5;
+
+							initlin6:NS=countlin6;
+							countlin6:if(i>=10'd10) begin
+									NS=initlin7;
+									end
+							else NS=countlin6;
+
+							initlin7:NS=countlin7;
+							countlin7:if(i>=10'd10) begin
+									NS=done;
+									end
+							else NS=countlin7;
 								
 							done:NS=done;
 						endcase
@@ -305,6 +329,56 @@ always @(posedge clk or negedge rst) begin
                     the_vga_draw_frame_write_a_pixel <= 1'b0;
                 end
             end
+
+		initlin5: begin
+                the_vga_draw_frame_write_mem_address <= 15'd542; // Starting address for  line
+                i <= 16'd0;
+                the_vga_draw_frame_write_a_pixel <= 1'b0;
+            end
+            countlin5: begin
+                if (i < 15'd60) begin
+                    i <= i + 1'b1;
+                    the_vga_draw_frame_write_mem_address <= the_vga_draw_frame_write_mem_address + 8'd120;
+                    the_vga_draw_frame_write_mem_data <= {8'h00, 8'h00, 8'hff};
+                    the_vga_draw_frame_write_a_pixel <= 1'b1;
+                end else begin
+                    the_vga_draw_frame_write_a_pixel <= 1'b0;
+                end
+            end
+
+
+		initlin6: begin
+                the_vga_draw_frame_write_mem_address <= 15'd4812; // Starting address for line
+                i <= 16'd0;
+                the_vga_draw_frame_write_a_pixel <= 1'b0;
+            end
+            countlin6: begin
+                if (i < 15'd60) begin
+                    i <= i + 1'b1;
+                    the_vga_draw_frame_write_mem_address <= the_vga_draw_frame_write_mem_address + 8'd1;
+                    the_vga_draw_frame_write_mem_data <= {8'h00, 8'h00, 8'hff};
+                    the_vga_draw_frame_write_a_pixel <= 1'b1;
+                end else begin
+                    the_vga_draw_frame_write_a_pixel <= 1'b0;
+                end
+            end
+initlin7: begin
+                the_vga_draw_frame_write_mem_address <= 15'd7262; // Starting address for line
+                i <= 16'd0;
+                the_vga_draw_frame_write_a_pixel <= 1'b0;
+            end
+            countlin7: begin
+                if (i < 15'd60) begin
+                    i <= i + 1'b1;
+                    the_vga_draw_frame_write_mem_address <= the_vga_draw_frame_write_mem_address + 8'd1;
+                    the_vga_draw_frame_write_mem_data <= {8'h00, 8'h00, 8'hff};
+                    the_vga_draw_frame_write_a_pixel <= 1'b1;
+                end else begin
+                    the_vga_draw_frame_write_a_pixel <= 1'b0;
+                end
+            end
+		
+		
 				
             done: begin
                 the_vga_draw_frame_write_a_pixel <= 1'b0;
