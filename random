@@ -1,0 +1,21 @@
+ /* LFSR - this is your rand ... if you have less bits than 36 then just grab a portion of the signal */
+module random(clk, rst, srand, init_srand, random);
+input clk, rst;
+input init_srand;
+
+input [35:0] srand;
+output reg [35:0] random;
+always @(posedge clk or negedge rst)
+begin
+              if (rst == 1'b0)
+                             random <= 36'd0;
+              else
+                             if(init_srand == 1'b1)
+                                            random <= srand; //This is a constant to initialize it
+                             else
+                                            random <= 
+				    			{random[34:0],			
+							random[35]^random[12]^random[17]^random[3]^random[6]};
+end
+ 
+endmodule
