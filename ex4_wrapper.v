@@ -400,19 +400,20 @@ end
  * YOUR CODE below - noting some of the signals that attach above!!!
  *****************************************************************************/
 /* HERE's where you build your C code as an FSM */
-reg [:0] output1; // this is the final output from the run system
+	reg [23:0] output1; // this is the final output from the run system
 reg start; // the signal that is set by the above code to start executing your C code
 reg done; // the signal that you turn on to tell the above FSM when your code is complete
 reg [15:0] algorithm_ticks; // a record of how many ticks your code takes that is displayed on KEY[3] above
-reg [:0] in1;
-reg [:0] in2;
+	reg [23:0] in1;
+	reg [23:0] in2;
 
 reg [7:0] S;
 reg [7:0] NS;
 
 /* Parameters for FSM */
 parameter 	S_START = 8'd0,
-		...
+		S_init=8'd1,
+		S_
 		S_DONE = ,
 		S_ERROR = 8'hFF;
 
@@ -421,19 +422,19 @@ parameter 	MINIT_RAND = 3'd0,
 		MREAD_LOCAL = 3'd3,
 		MFUNCTION = 3'd4;
 			
-reg [:0] i;
-reg [:0] idx;
-reg [:0] x;
-reg [:0] y;
+	reg [23:0] i;
+	reg [23:0] idx;
+	reg [23:0] x;
+	reg [23:0] y;
 ...
 
 /* MEMORY MUXING */
-reg [:0]local_data_address;
+	reg [6:0]local_data_address;
 reg local_data_wren;
-reg [:0]local_data_in;
-wire [:0]mem_init_data_address;
+	reg [35:0]local_data_in;
+	wire [63:0]mem_init_data_address;
 wire mem_init_data_wren;
-wire [:0]mem_init_data_in;
+	wire [63:0]mem_init_data_in;
 
 ...
 
@@ -519,12 +520,12 @@ always @(posedge clk or negedge rst)
 begin
 	if (rst == 1'b0)
 	begin
-		output1 <= 
+		output1 <= 24'd0;
 		
-		i <= 
-		idx <= 
-		x <= 
-		y <= 
+		i <= 24'd1;
+		idx <= 24;
+		x <= 24'd0;
+		y <= 24'd0;
 
 		s_mem_init_wait_start <= 1'b0;
 		
@@ -542,12 +543,12 @@ begin
 		case (S)
 			S_START:
 			begin
-				output1 <= 
+				output1 <= 24'd0;
 				
-				i <= 
-				idx <= 
-				x <= 
-				y <= 
+				i <= 24'd1;
+				idx <= 24'd0;
+				x <= 24'd0;
+				y <= 24'd0;
 
 				s_mem_init_wait_start <= 1'b0;
 				
