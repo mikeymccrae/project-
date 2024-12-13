@@ -413,8 +413,10 @@ reg [7:0] NS;
 /* Parameters for FSM */
 parameter 	S_START = 8'd0,
 		S_init=8'd1,
-		S_
-		S_DONE = ,
+	S_while=8'd2,
+	S_forcond=8'd3,
+	s_forcount=8'd4,
+		S_DONE = 8'd5,
 		S_ERROR = 8'hFF;
 
 parameter 	MINIT_RAND = 3'd0,
@@ -426,7 +428,36 @@ parameter 	MINIT_RAND = 3'd0,
 	reg [23:0] idx;
 	reg [23:0] x;
 	reg [23:0] y;
-...
+	always@(*)
+		begin
+			case(S)
+			
+				S_START:NS=S_init;
+				S_init:NS=S_while
+				S_while:begin
+					if(idx<x)
+						begin 
+							NS=S_forcond;
+						end 
+					else 
+						begin
+							NS=S_DONE;
+						end
+				end
+				S_forcond:begin
+					if(i<y)
+						begin
+							NS=forcount;
+						end
+					else
+						begin
+							NS=S_while;
+						end
+				end
+					S_forcount:NS=S_forcond;
+				S_DONE:NS=S_DONE;
+				
+		end
 
 /* MEMORY MUXING */
 	reg [6:0]local_data_address;
@@ -441,20 +472,21 @@ wire mem_init_data_wren;
 /* signals to and from my instantiated memory function modules */
 wire s_mem_init_wait_done;
 reg s_mem_init_wait_start;
-...
+
 
 /* signals from and to my instantiated modules for various functions */
 ...
 
 
 /* absolute value functions instantiation - 1 for each instance in code */
-...
+				abs abs1(in1);
+				abs abs2(in2);
 
 /* rand function - 1 for each instance in code - Initialize at begining */
-random my_idx(clk, rst, 36'hC981AB039, , );
+	random my_idx(clk, rst, 36'hC981AB039,,output1 );
 
 /* my function instantiation(s) */
-...
+				
 
 /* my memory function instantiations */
 mem_init_rand my_mem_init(
@@ -561,7 +593,7 @@ begin
 				
 				algorithm_ticks <= 16'd0;
 			end
-			S_INIT:
+			S_INIT: 
 			begin
 			end
 			S_MEM_INIT_START:
@@ -591,5 +623,17 @@ end
 endmodule
 
 /* your modules for memory and functions */
-...
+
+				module abs(input in);
+	output reg out;
+	if(in<0)
+		begin 
+			out=-in;
+		end
+	else 
+		begin
+			out=in;
+		end
+
+endmodule
 
