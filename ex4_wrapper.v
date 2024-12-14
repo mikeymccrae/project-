@@ -377,15 +377,15 @@ begin
 		end
 		MWRITE_LOCAL:
 		begin
-			...
+			
 		end
 		MREAD_LOCAL:
 		begin
-			...
+			
 		end
 		MFUNCTION:
 		begin
-			...
+			
 		end
 		default: 
 		begin
@@ -433,7 +433,7 @@ parameter 	MINIT_RAND = 3'd0,
 			case(S)
 			
 				S_START:NS=S_init;
-				S_init:NS=S_while
+				S_init:NS=S_while;
 				S_while:begin
 					if(idx<x)
 						begin 
@@ -467,7 +467,7 @@ reg local_data_wren;
 wire mem_init_data_wren;
 	wire [63:0]mem_init_data_in;
 
-...
+
 
 /* signals to and from my instantiated memory function modules */
 wire s_mem_init_wait_done;
@@ -475,7 +475,7 @@ reg s_mem_init_wait_start;
 
 
 /* signals from and to my instantiated modules for various functions */
-...
+
 
 
 /* absolute value functions instantiation - 1 for each instance in code */
@@ -626,7 +626,7 @@ endmodule
 
 				module abs(input in);
 	output reg out;
-	if(in<0)
+			if(in<1'b0)
 		begin 
 			out=-in;
 		end
@@ -636,4 +636,107 @@ endmodule
 		end
 
 endmodule
+
+module min(input a, b,c,d);
+output reg out;
+	if(a< b && a<c && a<d)
+	begin
+	out=a;
+	end 
+	else if(b<c && b<d)
+		begin
+			out=b;
+
+		end
+	else if(c<d)
+		begin 
+			out=c;
+
+		end 
+	else
+		begin
+			out=d;
+
+		end
+
+
+
+	endmodule
+
+
+module max(input a, b,c,d);
+output reg out;
+	if(a>b && a>c && a>d)
+	begin
+	out=a;
+	end 
+	else if(b>c && b>d)
+		begin
+			out=b;
+
+		end
+	else if(c>d)
+		begin 
+			out=c;
+
+		end 
+	else
+		begin
+			out=d;
+
+		end
+
+
+
+	endmodule
+
+	module add_min_max(input a,b,c,d);
+		reg max;
+		reg min;
+		output reg out;
+				if(a>b && a>c && a>d)
+	begin
+	max=a;
+	end 
+	else if(b>c && b>d)
+		begin
+			max=b;
+
+		end
+	else if(c>d)
+		begin 
+			max=c;
+
+		end 
+	else
+		begin
+			max=d;
+
+		end	
+
+		if(a< b && a<c && a<d)
+	begin
+	min=a;
+	end 
+	else if(b<c && b<d)
+		begin
+			min=b;
+
+		end
+	else if(c<d)
+		begin 
+			min=c;
+
+		end 
+	else
+		begin
+			min=d;
+
+		end
+		out=min+max;
+
+	endmodule
+
+		
+					
 
